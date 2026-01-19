@@ -1,0 +1,46 @@
+services:
+  # 1. Worldserver Configuration
+  ac-worldserver:
+    environment:
+      AC_SOLOCRAFT_ENABLE: "1"
+      AC_SOLOCRAFT_SCALING_FACTOR: "20"
+
+      # 1. Disable Solocraft XP Buffs
+      # We want Solocraft for boss stats, NOT for XP multiplication.
+      AC_SOLOCRAFT_XP_ENABLED: "0"
+
+      # 2. Global Rate Reduction
+      # Default is 1. Set to 0.5 for half speed, 0.1 for extreme hardcore.
+      AC_RATE_XP_KILL: "0.5"
+      AC_RATE_XP_QUEST: "0"
+      AC_RATE_XP_EXPLORE: "0"
+      AC_RATE_XP_KILL_ELITE: "3"
+
+      # 3. flaks
+      AC_REUSABLE_POTION_ENABLE: "1"
+      AC_REUSABLE_POTION_ENABLE_HEALING: "1"
+      AC_REUSABLE_POTION_ENABLE_AURA: "1"
+      AC_REUSABLE_POTION_ENABLE_MANA: "1"
+      AC_REUSABLE_POTION_VERBOSE: "1"
+      AC_REUSABLE_POTION_PV_PENABLE: "1"
+
+      # professions
+      AC_MAX_PRIMARY_TRADE_SKILL: "12"
+      
+    volumes:
+      - ./lua_scripts:/azerothcore/env/dist/bin/lua_scripts
+      - ./lua_scripts/configs:/azerothcore/env/dist/etc/modules
+    # Tell Worldserver to STOP waiting for the importer
+    depends_on:
+      ac-database:
+        condition: service_healthy
+
+  # 2. Neuter the Importer (The Permanent Fix)
+  ac-db-import:
+    # We replace the complex import script with a simple "echo" command.
+    # This returns Exit Code 0 (Success) immediately.
+    entrypoint: ["echo", "Skipping import (Database initialized)."]
+  
+
+
+

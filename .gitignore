@@ -28,6 +28,7 @@ draft.sql
 !/src/server/scripts/Custom/README.md
 
 /*.override.yml
+!docker-compose.override.yml
 /*.override.yaml
 
 !.gitkeep
