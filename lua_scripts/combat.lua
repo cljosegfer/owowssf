@@ -18,7 +18,7 @@ local SPELL_DATA = {
 -- Set this higher (1.5 or 2.0) to make combat feel heavy/slow.
 -- Set this lower (0.5 or 1.0) to make it feel snappy.
 local USE_GCD = true
-local GCD_SEC = 1.5
+local GCD_SEC = 1.0 -- slightly less than GCD for robustness
 
 -- 3. CONSTANTS (Do not change)
 local CMSG_CAST_SPELL = 302 
@@ -80,6 +80,13 @@ local function OnCastPacket(event, packet, player)
 
     -- Deduct Mana immediately (The Hack)
     player:SetInt32Value(FIELD_MANA, currentMana - config.mana)
+    -- NEW: INTERRUPT REGEN (Enforce the "5 Second Rule")
+    -- We set the "Last Cast Time" to now. This tells the core to stop regen.
+    -- (This function might vary by core, but SetLastManaUse is standard)
+    if player.SetLastManaUse then
+        player:SetLastManaUse(GetGameTime()) 
+    end
+
 
     -- ========================================================
     -- APPLY COOLDOWNS (The Cost)
