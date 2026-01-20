@@ -26,6 +26,9 @@ services:
 
       # professions
       AC_MAX_PRIMARY_TRADE_SKILL: "12"
+
+      AC_NO_HEARTHSTONE_COOLDOWN_ENABLE: "1"
+      AC_NO_HEARTHSTONE_COOLDOWN_ANNOUNCE: "1"
       
     volumes:
       - ./lua_scripts:/azerothcore/env/dist/bin/lua_scripts

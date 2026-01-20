@@ -12,6 +12,7 @@ local SPELL_DATA = {
     
     -- Add new spells here as you learn them (Check WoWHead for IDs)
     [143] = { cd = 4.0, mana = 35 },  -- Fireball Rank 2
+    [205] = { cd = 3.6, mana = 26 },  -- Fireball Rank 2
 }
 
 -- 2. GLOBAL COOLDOWN (The "Weight" of combat)
