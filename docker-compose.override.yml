@@ -29,6 +29,9 @@ services:
 
       AC_NO_HEARTHSTONE_COOLDOWN_ENABLE: "1"
       AC_NO_HEARTHSTONE_COOLDOWN_ANNOUNCE: "1"
+
+      # talents
+      AC_RATE_TALENT: "2"
       
     volumes:
       - ./lua_scripts:/azerothcore/env/dist/bin/lua_scripts

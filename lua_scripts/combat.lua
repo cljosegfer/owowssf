@@ -12,7 +12,11 @@ local SPELL_DATA = {
     
     -- Add new spells here as you learn them (Check WoWHead for IDs)
     [143] = { cd = 4.0, mana = 35 },  -- Fireball Rank 2
-    [205] = { cd = 3.6, mana = 26 },  -- Fireball Rank 2
+    [205] = { cd = 3.6, mana = 26 },  -- Frostbolt Rank 2
+    -- [118] = { cd = 6.0, mana = 28 },  -- Polymorph Rank 1
+    -- [122] = { cd = 16.0, mana = 32 },  -- Frostnova Rank 1
+    [145] = { cd = 5.0, mana = 86 },  -- Fireball Rank 3
+    [837] = { cd = 4.4, mana = 57 },  -- Frostbolt Rank 2
 }
 
 -- 2. GLOBAL COOLDOWN (The "Weight" of combat)
@@ -107,6 +111,7 @@ local function OnCastPacket(event, packet, player)
     
     -- Cast Instant (Triggered=true ignores standard checks)
     player:CastSpell(target, spellId, true)
+    print('[Combat] Player ' .. player:GetName() .. ' cast spell ID ' .. spellId)
 
     -- Block the original packet so the client doesn't start the slow cast bar
     return false 
