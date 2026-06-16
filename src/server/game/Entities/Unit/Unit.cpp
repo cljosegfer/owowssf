@@ -3479,7 +3479,7 @@ SpellMissInfo Unit::MagicSpellHitResult(Unit* victim, SpellInfo const* spellInfo
     int32 thisLevel = getLevelForTarget(victim);
     if (IsCreature() && ToCreature()->IsTrigger())
         thisLevel = std::max<int32>(thisLevel, spellInfo->SpellLevel);
-    int32 levelDiff = int32(victim->getLevelForTarget(this)) - thisLevel;
+    int32 levelDiff = std::min(0, int32(victim->getLevelForTarget(this)) - thisLevel);
 
     int32 MISS_CHANCE_MULTIPLIER;
     if (sWorld->getBoolConfig(CONFIG_MISS_CHANCE_MULTIPLIER_ONLY_FOR_PLAYERS) && !IsPlayer()) // keep it as it was originally (7 and 11)
@@ -15370,11 +15370,11 @@ float Unit::MeleeSpellMissChance(Unit const* victim, WeaponAttackType attType, i
 
     // bonus from skills is 0.04%
     //miss_chance -= skillDiff * 0.04f;
-    int32 diff = -skillDiff;
+    int32 diff = std::min(0, -skillDiff);
     if (victim->IsPlayer())
-        missChance += diff > 0 ? diff * 0.04f : diff * 0.02f;
+        missChance += diff * 0.02f;
     else
-        missChance += diff > 10 ? 1 + (diff - 10) * 0.4f : diff * 0.1f;
+        missChance += diff * 0.1f;
 
     // Calculate hit chance
     float hitChance = 100.0f;
