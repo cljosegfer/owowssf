@@ -7,16 +7,20 @@
 -- cd is double cast time and mana is flat from earliest lvl
 local SPELL_DATA = {
     -- MAGE
-    [133] = { cd = 3.0, mana = 13 },  -- Fireball Rank 1
-    [116] = { cd = 3.0, mana = 16 },  -- Frostbolt Rank 1
+    [133] = { cd = 3.0, mana = 8 },  -- Fireball Rank 1
+    [116] = { cd = 3.0, mana = 7 },  -- Frostbolt Rank 1
     
     -- Add new spells here as you learn them (Check WoWHead for IDs)
-    [143] = { cd = 4.0, mana = 35 },  -- Fireball Rank 2
-    [205] = { cd = 3.6, mana = 26 },  -- Frostbolt Rank 2
+    [143] = { cd = 4.0, mana = 14 },  -- Fireball Rank 2
+    [205] = { cd = 3.6, mana = 10 },  -- Frostbolt Rank 2
     -- [118] = { cd = 6.0, mana = 28 },  -- Polymorph Rank 1
     -- [122] = { cd = 16.0, mana = 32 },  -- Frostnova Rank 1
-    [145] = { cd = 5.0, mana = 86 },  -- Fireball Rank 3
-    [837] = { cd = 4.4, mana = 57 },  -- Frostbolt Rank 2
+
+    [145] = { cd = 5.0, mana = 30 },  -- Fireball Rank 3
+    [837] = { cd = 4.4, mana = 21 },  -- Frostbolt Rank 3
+    [2120] = { cd = 4.0, mana = 103 },  -- flamestrike Rank 1
+
+    [3140] = { cd = 6.0, mana = 50 },  -- Fireball Rank 4
 }
 
 -- 2. GLOBAL COOLDOWN (The "Weight" of combat)

@@ -8,6 +8,8 @@ local POTION_DATA = {
     [2455] = 437,  -- Minor Mana Potion -> Restore Mana
     [858] = 440,   -- Lesser Healing Potion
     [3385] = 438,  -- Lesser Mana Potion -> Restore Mana
+    [929] = 441,   -- Healing Potion
+    [3827] = 2023,  -- Mana Potion -> Restore Mana
 }
 
 -- Short delay to ensure we wipe the CD *after* the server applies it.
