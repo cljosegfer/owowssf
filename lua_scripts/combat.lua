@@ -21,6 +21,7 @@ local SPELL_DATA = {
     [2120] = { cd = 4.0, mana = 103 },  -- flamestrike Rank 1
 
     [3140] = { cd = 6.0, mana = 50 },  -- Fireball Rank 4
+    [7322] = { cd = 5.2, mana = 36 },  -- Frostbolt Rank 4
 }
 
 -- 2. GLOBAL COOLDOWN (The "Weight" of combat)

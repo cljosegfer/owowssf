@@ -5357,6 +5357,49 @@ void SpellMgr::LoadSpellInfoCorrections()
     LockEntry* key = const_cast<LockEntry*>(sLockStore.LookupEntry(36)); // 3366 Opening, allows to open without proper key
     key->Type[2] = LOCK_KEY_NONE;
 
+    // Blizzard — make it fire instantly like Flamestrike instead of channeling.
+    //
+    // DBC structure: Effect[0] = PERSISTENT_AREA_AURA with SPELL_AURA_DUMMY (visual DynObj only).
+    //                Effect[1] = APPLY_AURA on caster: PERIODIC_TRIGGER_SPELL → fires sub-spell
+    //                            every 1 s. That sub-spell uses TARGET_DEST_CHANNEL_TARGET (76)
+    //                            which resolves only while the caster has an active channel state.
+    //
+    // Fix: remove the channeling flag so the spell casts instantly, convert Effect[0]'s DynObj
+    // aura from DUMMY to PERIODIC_DAMAGE (pulling damage values from the triggered sub-spell),
+    // and clear Effect[1] since it is no longer needed.
+    ApplySpellFix({
+        10,     // Blizzard (Rank 1)
+        6141,   // Blizzard (Rank 2)
+        8427,   // Blizzard (Rank 3)
+        10185,  // Blizzard (Rank 4)
+        10186,  // Blizzard (Rank 5)
+        10187,  // Blizzard (Rank 6)
+        27085,  // Blizzard (Rank 7)
+        42939,  // Blizzard (Rank 8)
+        42940,  // Blizzard (Rank 9)
+    }, [](SpellInfo* spellInfo)
+    {
+        spellInfo->AttributesEx &= ~SPELL_ATTR1_IS_CHANNELED;
+
+        // Convert the DynObj aura from visual-only to periodic damage.
+        spellInfo->Effects[EFFECT_0].ApplyAuraName = SPELL_AURA_PERIODIC_DAMAGE;
+        spellInfo->Effects[EFFECT_0].Amplitude     = 1000;
+
+        // Pull damage values from the per-rank triggered sub-spell.
+        if (SpellInfo const* sub = sSpellMgr->GetSpellInfo(spellInfo->Effects[EFFECT_1].TriggerSpell))
+        {
+            spellInfo->Effects[EFFECT_0].BasePoints         = sub->Effects[EFFECT_0].BasePoints;
+            spellInfo->Effects[EFFECT_0].DieSides           = sub->Effects[EFFECT_0].DieSides;
+            spellInfo->Effects[EFFECT_0].RealPointsPerLevel = sub->Effects[EFFECT_0].RealPointsPerLevel;
+        }
+
+        // Clear the periodic trigger aura on the caster — it requires channel state to work.
+        spellInfo->Effects[EFFECT_1].Effect        = 0; // SPELL_EFFECT_NONE
+        spellInfo->Effects[EFFECT_1].ApplyAuraName = static_cast<AuraType>(0); // SPELL_AURA_NONE
+        spellInfo->Effects[EFFECT_1].TriggerSpell  = 0;
+        spellInfo->Effects[EFFECT_1].Amplitude     = 0;
+    });
+
     LOG_INFO("server.loading", ">> Loading spell dbc data corrections  in {} ms", GetMSTimeDiffToNow(oldMSTime));
     LOG_INFO("server.loading", " ");
 }
