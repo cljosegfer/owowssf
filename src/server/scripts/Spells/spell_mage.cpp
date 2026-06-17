@@ -780,22 +780,20 @@ class spell_mage_mana_shield : public spell_mage_incanters_absorbtion_base_AuraS
     void CalculateAmount(AuraEffect const* /*aurEff*/, int32& amount, bool& canBeRecalculated)
     {
         canBeRecalculated = false;
-        if (Unit* caster = GetCaster())
-        {
-            // +80.53% from sp bonus
-            float bonus = 0.8053f;
+        amount = INT32_MAX / 2; // no damage cap; expires only by duration or mana depletion
+    }
 
-            bonus *= caster->SpellBaseDamageBonusDone(GetSpellInfo()->GetSchoolMask());
-            bonus *= caster->CalculateLevelPenalty(GetSpellInfo());
-
-            amount += int32(bonus);
-        }
+    void CheckManaDepletion(AuraEffect* aurEff, DamageInfo& /*dmgInfo*/, uint32& /*absorbAmount*/)
+    {
+        if (GetTarget()->GetPower(POWER_MANA) == 0)
+            aurEff->GetBase()->Remove(AURA_REMOVE_BY_ENEMY_SPELL);
     }
 
     void Register() override
     {
         DoEffectCalcAmount += AuraEffectCalcAmountFn(spell_mage_mana_shield::CalculateAmount, EFFECT_0, SPELL_AURA_MANA_SHIELD);
         AfterEffectManaShield += AuraEffectManaShieldFn(spell_mage_mana_shield::Trigger, EFFECT_0);
+        AfterEffectManaShield += AuraEffectManaShieldFn(spell_mage_mana_shield::CheckManaDepletion, EFFECT_0);
     }
 };
 
