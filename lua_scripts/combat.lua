@@ -1,126 +1,99 @@
--- ============================================================
--- SOULS-LIKE COMBAT: FINAL PRODUCTION VERSION
--- ============================================================
+-- -- ============================================================
+-- -- SOULS-LIKE COMBAT
+-- -- ============================================================
 
--- 1. SPELL CONFIGURATION (TUNE THIS!)
--- [SpellID] = { cd = Seconds, mana = ManaCost }
--- cd is double cast time and mana is flat from earliest lvl
-local SPELL_DATA = {
-    -- MAGE
-    [133] = { cd = 2.0, mana = 8 },  -- Fireball Rank 1
-    [116] = { cd = 2.0, mana = 7 },  -- Frostbolt Rank 1
-    
-    -- Add new spells here as you learn them (Check WoWHead for IDs)
-    [143] = { cd = 2.0, mana = 14 },  -- Fireball Rank 2
-    [205] = { cd = 2.0, mana = 10 },  -- Frostbolt Rank 2
-    -- [118] = { cd = 6.0, mana = 28 },  -- Polymorph Rank 1
-    -- [122] = { cd = 16.0, mana = 32 },  -- Frostnova Rank 1
+-- -- 1. SPELL CONFIGURATION (TUNE THIS!)
+-- -- [SpellID] = { cd = Cooldown in ms, mana = ManaCost }
+-- local SPELL_DATA = {
+--     -- MAGE
+--     [133]  = { cd = 2000, mana = 8   },  -- Fireball Rank 1
+--     [116]  = { cd = 1000, mana = 7   },  -- Frostbolt Rank 1
 
-    [145] = { cd = 2.0, mana = 30 },  -- Fireball Rank 3
-    [837] = { cd = 2.0, mana = 21 },  -- Frostbolt Rank 3
-    [2120] = { cd = 2.0, mana = 103 },  -- flamestrike Rank 1
+--     [143]  = { cd = 2000, mana = 14  },  -- Fireball Rank 2
+--     [205]  = { cd = 1000, mana = 10  },  -- Frostbolt Rank 2
+--     -- [118] = { cd = 6000,  mana = 28  },  -- Polymorph Rank 1
+--     -- [122] = { cd = 16000, mana = 32  },  -- Frostnova Rank 1
 
-    [3140] = { cd = 2.0, mana = 50 },  -- Fireball Rank 4
-    [7322] = { cd = 2.0, mana = 36 },  -- Frostbolt Rank 4
-}
+--     [145]  = { cd = 2000, mana = 30  },  -- Fireball Rank 3
+--     [837]  = { cd = 1000, mana = 21  },  -- Frostbolt Rank 3
+--     [2120] = { cd = 2000, mana = 103 },  -- Flamestrike Rank 1
 
--- 2. GLOBAL COOLDOWN (The "Weight" of combat)
--- Set this higher (1.5 or 2.0) to make combat feel heavy/slow.
--- Set this lower (0.5 or 1.0) to make it feel snappy.
-local USE_GCD = true
-local GCD_SEC = 1.0 -- slightly less than GCD for robustness
+--     [3140] = { cd = 2000, mana = 50  },  -- Fireball Rank 4
+--     [7322] = { cd = 1000, mana = 36  },  -- Frostbolt Rank 4
+-- }
 
--- 3. CONSTANTS (Do not change)
-local CMSG_CAST_SPELL = 302 
-local FIELD_MANA = 25 -- The Magic Number you found!
+-- -- 2. GLOBAL COOLDOWN (ms) — raise to make combat feel heavier
+-- local USE_GCD = true
+-- local GCD_MS  = 500
 
--- ============================================================
--- LOGIC
--- ============================================================
-local cooldowns = {} -- [PlayerGUID][SpellID]
-local gcds = {}      -- [PlayerGUID]
+-- -- 3. CONSTANTS
+-- local CMSG_CAST_SPELL = 302
 
-local function OnCastPacket(event, packet, player)
-    -- Read packet header
-    local count = packet:ReadUByte()
-    local spellId = packet:ReadULong()
+-- -- ============================================================
+-- -- LOGIC
+-- -- ============================================================
+-- local cooldowns = {}  -- [playerGUID][spellId] = expiry time (ms)
+-- local gcds       = {}  -- [playerGUID]          = expiry time (ms)
 
-    -- Is this a configured spell?
-    local config = SPELL_DATA[spellId]
-    if not config then return true end -- Let normal game handle non-configured spells
+-- local function OnCastPacket(event, packet, player)
+--     local count   = packet:ReadUByte()
+--     local spellId = packet:ReadULong()
 
-    -- Basic Checks
-    if not player:HasSpell(spellId) then return false end
-    
-    local target = player:GetSelection()
-    if not target then
-        player:SendNotification("No Target")
-        return false 
-    end
+--     local config = SPELL_DATA[spellId]
+--     if not config then return true end  -- pass non-configured spells through
 
-    -- ========================================================
-    -- COOLDOWN CHECKS (Here is the logic you were looking for)
-    -- ========================================================
-    local guid = player:GetGUIDLow()
-    local now = os.time() 
+--     if not player:HasSpell(spellId) then return false end
 
-    -- A. Global Cooldown Check
-    if USE_GCD and gcds[guid] and gcds[guid] > now then
-        -- Silent fail (prevents spamming chat with errors)
-        return false 
-    end
+--     local target = player:GetSelection()
+--     if not target then
+--         player:SendNotification("No Target")
+--         return false
+--     end
 
-    -- B. Specific Spell Cooldown Check
-    if not cooldowns[guid] then cooldowns[guid] = {} end
-    if cooldowns[guid][spellId] and cooldowns[guid][spellId] > now then
-        local remaining = cooldowns[guid][spellId] - now
-        player:SendNotification("Not Ready (" .. remaining .. "s)")
-        return false
-    end
+--     if not player:IsWithinLoS(target) then
+--         player:SendNotification("Target not in line of sight")
+--         return false
+--     end
 
-    -- ========================================================
-    -- MANA CHECK & DEDUCTION
-    -- ========================================================
-    local currentMana = player:GetInt32Value(FIELD_MANA)
-    
-    if currentMana < config.mana then
-        player:SendNotification("Not enough Mana!")
-        return false
-    end
+--     local guid = player:GetGUIDLow()
+--     local now  = GetCurrTime()  -- milliseconds since server start
 
-    -- Deduct Mana immediately (The Hack)
-    player:SetInt32Value(FIELD_MANA, currentMana - config.mana)
-    -- NEW: INTERRUPT REGEN (Enforce the "5 Second Rule")
-    -- We set the "Last Cast Time" to now. This tells the core to stop regen.
-    -- (This function might vary by core, but SetLastManaUse is standard)
-    if player.SetLastManaUse then
-        player:SetLastManaUse(GetGameTime()) 
-    end
+--     -- GCD check
+--     if USE_GCD and gcds[guid] and gcds[guid] > now then
+--         return false
+--     end
 
+--     -- Per-spell cooldown check
+--     if not cooldowns[guid] then cooldowns[guid] = {} end
+--     if cooldowns[guid][spellId] and cooldowns[guid][spellId] > now then
+--         local remaining = math.ceil((cooldowns[guid][spellId] - now) / 1000)
+--         player:SendNotification("Not Ready (" .. remaining .. "s)")
+--         return false
+--     end
 
-    -- ========================================================
-    -- APPLY COOLDOWNS (The Cost)
-    -- ========================================================
-    
-    -- Set when this specific spell can be used again
-    cooldowns[guid][spellId] = now + config.cd
-    
-    -- Set when ANY spell can be used again
-    if USE_GCD then
-        gcds[guid] = now + GCD_SEC
-    end
+--     -- Mana check
+--     local currentMana = player:GetPower(0)
+--     if currentMana < config.mana then
+--         player:SendNotification("Not enough Mana!")
+--         return false
+--     end
 
-    -- ========================================================
-    -- ACTION (The Reward)
-    -- ========================================================
-    
-    -- Cast Instant (Triggered=true ignores standard checks)
-    player:CastSpell(target, spellId, true)
-    print('[Combat] Player ' .. player:GetName() .. ' cast spell ID ' .. spellId)
+--     -- Deduct mana
+--     player:SetPower(0, currentMana - config.mana)
 
-    -- Block the original packet so the client doesn't start the slow cast bar
-    return false 
-end
+--     -- Apply cooldowns
+--     cooldowns[guid][spellId] = now + config.cd
+--     if USE_GCD then
+--         gcds[guid] = now + GCD_MS
+--     end
 
-RegisterPacketEvent(CMSG_CAST_SPELL, 5, OnCastPacket)
-print(">> Souls-Like Combat: FINAL loaded.")
+--     -- Cast instant (triggered=true skips cast bar, mana cost, and range/LoS checks;
+--     -- we enforce mana and LoS above, range is not currently checked)
+--     player:CastSpell(target, spellId, true)
+--     print("[Combat] " .. player:GetName() .. " cast spell " .. spellId)
+
+--     return false  -- block original slow-cast packet
+-- end
+
+-- RegisterPacketEvent(CMSG_CAST_SPELL, 5, OnCastPacket)
+-- print(">> Souls-Like Combat: loaded.")

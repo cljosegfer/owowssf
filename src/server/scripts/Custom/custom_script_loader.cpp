@@ -15,12 +15,9 @@
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-// This is where scripts' loading functions should be declared:
-// void MyExampleScript()
+void AddSC_instant_cast();
 
-// The name of this function should match:
-// void Add${NameOfDirectory}Scripts()
 void AddCustomScripts()
 {
-    // MyExampleScript()
+    AddSC_instant_cast();
 }
