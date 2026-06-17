@@ -5400,6 +5400,19 @@ void SpellMgr::LoadSpellInfoCorrections()
         spellInfo->Effects[EFFECT_1].Amplitude     = 0;
     });
 
+    // Frostbite (talent): raise proc chance from 5/10/15% to 99%.
+    // SPELL_AURA_ADD_TARGET_TRIGGER (type 109) reads BasePoints as the proc chance via
+    // CalculateSpellDamage(nullptr, ..., &GetBaseAmount()), which returns BasePoints+DieSides.
+    // DieSides=1 for all ranks, so set BasePoints=98 to get CalcValue=99.
+    ApplySpellFix({
+        11071, // Frostbite (Rank 1)
+        12496, // Frostbite (Rank 2)
+        12497, // Frostbite (Rank 3)
+    }, [](SpellInfo* spellInfo)
+    {
+        spellInfo->Effects[EFFECT_0].BasePoints = 49;
+    });
+
     LOG_INFO("server.loading", ">> Loading spell dbc data corrections  in {} ms", GetMSTimeDiffToNow(oldMSTime));
     LOG_INFO("server.loading", " ");
 }
