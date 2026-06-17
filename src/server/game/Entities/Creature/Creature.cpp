@@ -2165,7 +2165,7 @@ void Creature::InitializeReactState()
 
 bool Creature::HasMechanicTemplateImmunity(uint32 mask) const
 {
-    return !GetOwnerGUID().IsPlayer() && (GetCreatureTemplate()->MechanicImmuneMask & mask);
+    return false;
 }
 
 void Creature::LoadSpellTemplateImmunity()
