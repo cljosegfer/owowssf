@@ -186,9 +186,12 @@ uint8 Player::FindEquipSlot(ItemTemplate const* proto, uint32 slot, bool swap) c
             break;
         }
         case INVTYPE_SHIELD:
-        case INVTYPE_WEAPONOFFHAND:
         case INVTYPE_HOLDABLE:
             slots[0] = EQUIPMENT_SLOT_OFFHAND;
+            break;
+        case INVTYPE_WEAPONOFFHAND:
+            slots[0] = EQUIPMENT_SLOT_MAINHAND;
+            slots[1] = EQUIPMENT_SLOT_OFFHAND;
             break;
         case INVTYPE_RANGED:
         case INVTYPE_RANGEDRIGHT:
@@ -2309,31 +2312,6 @@ InventoryResult Player::CanUseItem(Item* pItem, bool not_loading) const
             InventoryResult res = CanUseItem(pProto);
             if (res != EQUIP_ERR_OK)
                 return res;
-
-            if (pItem->GetSkill() != 0)
-            {
-                bool allowEquip = false;
-                uint32 itemSkill = pItem->GetSkill();
-                // Armor that is binded to account can "morph" from plate to mail, etc. if skill is not learned yet.
-                if (pProto->Quality == ITEM_QUALITY_HEIRLOOM && pProto->Class == ITEM_CLASS_ARMOR && !HasSkill(itemSkill))
-                {
-                    /// @todo: when you right-click already equipped item it throws EQUIP_ERR_NO_REQUIRED_PROFICIENCY.
-
-                    // In fact it's a visual bug, everything works properly... I need sniffs of operations with
-                    // binded to account items from off server.
-
-                    if (IsClass(CLASS_PALADIN, CLASS_CONTEXT_EQUIP_ARMOR_CLASS) || IsClass(CLASS_WARRIOR, CLASS_CONTEXT_EQUIP_ARMOR_CLASS))
-                    {
-                        allowEquip = (itemSkill == SKILL_PLATE_MAIL);
-                    }
-                    else if (IsClass(CLASS_HUNTER, CLASS_CONTEXT_EQUIP_ARMOR_CLASS) || IsClass(CLASS_SHAMAN, CLASS_CONTEXT_EQUIP_ARMOR_CLASS))
-                    {
-                        allowEquip = (itemSkill == SKILL_MAIL);
-                    }
-                }
-                if (!allowEquip && GetSkillValue(itemSkill) == 0)
-                    return EQUIP_ERR_NO_REQUIRED_PROFICIENCY;
-            }
 
             if (pProto->RequiredReputationFaction && uint32(GetReputationRank(pProto->RequiredReputationFaction)) < pProto->RequiredReputationRank)
                 return EQUIP_ERR_CANT_EQUIP_REPUTATION;
