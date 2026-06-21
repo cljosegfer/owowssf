@@ -8928,6 +8928,7 @@ int32 Unit::SpellBaseDamageBonusDone(SpellSchoolMask schoolMask)
         // Base value
         DoneAdvertisedBenefit += ToPlayer()->GetBaseSpellPowerBonus();
         DoneAdvertisedBenefit += ToPlayer()->GetBaseSpellDamageBonus();
+        DoneAdvertisedBenefit += int32(ToPlayer()->GetStat(STAT_INTELLECT) * 0.1f);
 
         // Damage bonus from stats
         AuraEffectList const& mDamageDoneOfStatPercent = GetAuraEffectsByType(SPELL_AURA_MOD_SPELL_DAMAGE_OF_STAT_PERCENT);
@@ -9669,6 +9670,7 @@ int32 Unit::SpellBaseHealingBonusDone(SpellSchoolMask schoolMask)
         // Base value
         AdvertisedBenefit += ToPlayer()->GetBaseSpellPowerBonus();
         AdvertisedBenefit += ToPlayer()->GetBaseSpellHealingBonus();
+        AdvertisedBenefit += int32(GetStat(STAT_INTELLECT) * 0.1f);
 
         // Healing bonus from stats
         AuraEffectList const& mHealingDoneOfStatPercent = GetAuraEffectsByType(SPELL_AURA_MOD_SPELL_HEALING_OF_STAT_PERCENT);
