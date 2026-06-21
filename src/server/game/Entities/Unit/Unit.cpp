@@ -13758,7 +13758,7 @@ float Unit::GetAPMultiplier(WeaponAttackType attType, bool normalized)
 
 bool Unit::IsUnderLastManaUseEffect() const
 {
-    return  getMSTimeDiff(m_lastManaUse, GameTime::GetGameTimeMS().count()) < 5000;
+    return false;
 }
 
 void Unit::SetContestedPvP(Player* attackedPlayer, bool lookForNearContestedGuards)
