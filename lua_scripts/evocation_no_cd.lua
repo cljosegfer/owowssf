@@ -1,13 +1,23 @@
-local EVOCATION = 12051
+-- Spells whose cooldowns should be removed.
+--
+-- channel = true  → cooldown fires at channel END via SMSG_COOLDOWN_EVENT
+--                   (SPELL_ATTR0_COOLDOWN_ON_EVENT); poll until the channel finishes.
+-- channel = false → cooldown fires immediately on cast; a single clear after 200ms suffices.
+--
+-- Requires a matching row in spell_cooldown_overrides (mage_no_cooldowns.sql) to also
+-- zero out the server-side cooldown.
+local NO_CD_SPELLS = {
+    [12051] = { channel = true  },  -- Evocation
+    [2139]  = { channel = false },  -- Counterspell
+}
 
--- Evocation has SPELL_ATTR0_COOLDOWN_ON_EVENT: the client receives SMSG_COOLDOWN_EVENT
--- when the channel ends and applies the 8-min DBC cooldown locally. The server-side
--- cooldown is already 0 via spell_cooldown_overrides. We poll after cast start to
--- send SMSG_CLEAR_COOLDOWN once the client cooldown appears.
 RegisterPlayerEvent(5, function(event, player, spell, skipCheck)
-    if spell:GetEntry() ~= EVOCATION then return end
+    local spellId = spell:GetEntry()
+    local cfg = NO_CD_SPELLS[spellId]
+    if not cfg then return end
 
     local guid = player:GetGUID()
+    local maxRep = cfg.channel and 50 or 1
     local rep = 0
 
     CreateLuaEvent(function(eventId)
@@ -17,11 +27,11 @@ RegisterPlayerEvent(5, function(event, player, spell, skipCheck)
             RemoveEventById(eventId)
             return
         end
-        p:ResetSpellCooldown(EVOCATION, true)
-        if rep >= 50 then
+        p:ResetSpellCooldown(spellId, true)
+        if rep >= maxRep then
             RemoveEventById(eventId)
         end
-    end, 200, 50) -- every 200ms for 10 seconds (covers full channel + early cancel)
+    end, 200, maxRep)
 end)
 
-print(">> evocation loaded.")
+print(">> mage no-cooldown spells loaded.")
