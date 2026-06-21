@@ -15,7 +15,10 @@
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
+#include "Cell.h"
+#include "CellImpl.h"
 #include "CreatureScript.h"
+#include "GridNotifiers.h"
 #include "Pet.h"
 #include "Player.h"
 #include "SpellAuraEffects.h"
@@ -1501,6 +1504,39 @@ class spell_mage_missile_barrage_proc : public AuraScript
     }
 };
 
+// Arcane Explosion: redirect AOE to detonate around the caster's selected target instead of around the caster.
+// Arcane Explosion normally uses TARGET_UNIT_SRC_AREA_ENEMY (center = caster), so GetExplTargetUnit() is always
+// nullptr. We retrieve the selected unit from the Player and re-collect hostile units around it.
+class spell_mage_arcane_explosion : public SpellScript
+{
+    PrepareSpellScript(spell_mage_arcane_explosion);
+
+    void FilterTargets(std::list<WorldObject*>& targets)
+    {
+        Unit* caster = GetCaster();
+        Player* player = caster->ToPlayer();
+        if (!player)
+            return;
+
+        Unit* selected = player->GetSelectedUnit();
+        // No target or targeting self — leave vanilla behaviour untouched.
+        if (!selected || selected == caster)
+            return;
+
+        targets.clear();
+
+        float radius = GetSpellInfo()->Effects[EFFECT_0].CalcRadius(caster);
+        Acore::AnyAoETargetUnitInObjectRangeCheck check(selected, caster, radius);
+        Acore::UnitListSearcher<Acore::AnyAoETargetUnitInObjectRangeCheck> searcher(selected, targets, check);
+        Cell::VisitObjects(selected, searcher, radius);
+    }
+
+    void Register() override
+    {
+        OnObjectAreaTargetSelect += SpellObjectAreaTargetSelectFn(spell_mage_arcane_explosion::FilterTargets, EFFECT_0, TARGET_UNIT_SRC_AREA_ENEMY);
+    }
+};
+
 void AddSC_mage_spell_scripts()
 {
     RegisterSpellScript(spell_mage_arcane_blast);
@@ -1543,4 +1579,5 @@ void AddSC_mage_spell_scripts()
     RegisterSpellScript(spell_mage_summon_water_elemental);
     RegisterSpellScript(spell_mage_fingers_of_frost);
     RegisterSpellScript(spell_mage_magic_absorption);
+    RegisterSpellScript(spell_mage_arcane_explosion);
 }
