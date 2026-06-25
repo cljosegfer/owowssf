@@ -594,6 +594,7 @@ void SpellMgr::LoadSpellInfoCorrections()
     ApplySpellFix({ 5143, 5144, 5145, 8416, 8417, 10211, 10212, 25345, 27075, 38699, 38704, 42843, 42846 }, [](SpellInfo* spellInfo)
     {
         spellInfo->AttributesEx3 |= SPELL_ATTR3_SUPPRESS_TARGET_PROCS;
+        spellInfo->AttributesEx &= ~SPELL_ATTR1_IS_CHANNELED;
     });
 
     ApplySpellFix({

@@ -1372,6 +1372,43 @@ class spell_mage_arcane_missiles : public AuraScript
         return ValidateSpellInfo({ SPELL_MAGE_T10_2P_BONUS, SPELL_MAGE_T10_2P_BONUS_EFFECT });
     }
 
+    void OnApply(AuraEffect const* aurEff, AuraEffectHandleModes /*mode*/)
+    {
+        _missileTargetGuid = GetCaster()->GetTarget();
+        LOG_INFO("server.loading", "[AM] OnApply: spellId={} effIdx={} caster={} storedTarget={}",
+            GetId(), aurEff->GetEffIndex(), GetCaster()->GetGUID().ToString(), _missileTargetGuid.ToString());
+    }
+
+    void HandlePeriodic(AuraEffect const* aurEff)
+    {
+        PreventDefaultAction();
+        Unit* caster = GetCaster();
+        if (!caster)
+            return;
+        Unit* missileTarget = ObjectAccessor::GetUnit(*caster, _missileTargetGuid);
+        if (!missileTarget || !missileTarget->IsAlive())
+        {
+            Remove();
+            return;
+        }
+        uint32 triggerSpellId = aurEff->GetSpellInfo()->Effects[aurEff->GetEffIndex()].TriggerSpell;
+        SpellInfo const* triggerSpellInfo = sSpellMgr->GetSpellInfo(triggerSpellId);
+        if (!triggerSpellInfo)
+            return;
+
+        // Spell 7270 uses TARGET_SELECT_CATEGORY_CHANNEL for its damage effect, so it needs
+        // the channel GUID and destination set explicitly — otherwise the effect targeting
+        // resolves to nothing and the missile deals no damage even though it flies.
+        SpellCastTargets targets;
+        targets.SetUnitTarget(missileTarget);
+        if (triggerSpellInfo->IsChannelCategorySpell())
+        {
+            targets.SetDstChannel(SpellDestination(*missileTarget));
+            targets.SetObjectTargetChannel(missileTarget->GetGUID());
+        }
+        caster->CastSpell(targets, triggerSpellInfo, nullptr, TRIGGERED_FULL_MASK, nullptr, aurEff);
+    }
+
     void OnRemove(AuraEffect const* aurEff, AuraEffectHandleModes /*mode*/)
     {
         Unit* target = GetTarget();
@@ -1381,6 +1418,8 @@ class spell_mage_arcane_missiles : public AuraScript
 
     void Register() override
     {
+        OnEffectApply += AuraEffectApplyFn(spell_mage_arcane_missiles::OnApply, EFFECT_1, SPELL_AURA_PERIODIC_TRIGGER_SPELL, AURA_EFFECT_HANDLE_REAL);
+        OnEffectPeriodic += AuraEffectPeriodicFn(spell_mage_arcane_missiles::HandlePeriodic, EFFECT_1, SPELL_AURA_PERIODIC_TRIGGER_SPELL);
         AfterEffectRemove += AuraEffectRemoveFn(spell_mage_arcane_missiles::OnRemove, EFFECT_1, SPELL_AURA_PERIODIC_TRIGGER_SPELL, AURA_EFFECT_HANDLE_REAL);
     }
 
@@ -1389,6 +1428,7 @@ public:
 
 private:
     bool _canProcT10 = false;
+    ObjectGuid _missileTargetGuid;
 };
 
 // -31661 - Dragon's Breath
