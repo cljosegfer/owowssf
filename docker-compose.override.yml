@@ -2,7 +2,7 @@ services:
   # 1. Worldserver Configuration
   ac-worldserver:
     environment:
-      AC_SOLOCRAFT_ENABLE: "1"
+      AC_SOLOCRAFT_ENABLE: "0"
       AC_SOLOCRAFT_SCALING_FACTOR: "20"
 
       # 1. Disable Solocraft XP Buffs
@@ -11,10 +11,10 @@ services:
 
       # 2. Global Rate Reduction
       # Default is 1. Set to 0.5 for half speed, 0.1 for extreme hardcore.
-      AC_RATE_XP_KILL: "1.0"
+      AC_RATE_XP_KILL: "0.5"
       AC_RATE_XP_QUEST: "0"
       AC_RATE_XP_EXPLORE: "0"
-      AC_RATE_XP_KILL_ELITE: "3"
+      AC_RATE_XP_KILL_ELITE: "2"
 
       # drop
       AC_RATE_DROP_ITEM_QUEST: "10000"
