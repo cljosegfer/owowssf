@@ -1375,8 +1375,8 @@ class spell_mage_arcane_missiles : public AuraScript
     void OnApply(AuraEffect const* aurEff, AuraEffectHandleModes /*mode*/)
     {
         _missileTargetGuid = GetCaster()->GetTarget();
-        LOG_INFO("server.loading", "[AM] OnApply: spellId={} effIdx={} caster={} storedTarget={}",
-            GetId(), aurEff->GetEffIndex(), GetCaster()->GetGUID().ToString(), _missileTargetGuid.ToString());
+        //LOG_INFO("server.loading", "[AM] OnApply: spellId={} effIdx={} caster={} storedTarget={}",
+        //    GetId(), aurEff->GetEffIndex(), GetCaster()->GetGUID().ToString(), _missileTargetGuid.ToString());
     }
 
     void HandlePeriodic(AuraEffect const* aurEff)
