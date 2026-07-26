@@ -4334,7 +4334,11 @@ void Spell::EffectApplyGlyph(SpellEffIndex effIndex)
         {
             if (GlyphSlotEntry const* glyphSlotEntry = sGlyphSlotStore.LookupEntry(player->GetGlyphSlot(m_glyphIndex)))
             {
-                if (glyphEntry->TypeFlags != glyphSlotEntry->TypeFlags)
+                // Type: 0 = major, 1 = minor. Allow major glyphs into minor
+                // sockets in addition to the normal matching type.
+                bool const isMajorInMinorSlot = glyphEntry->TypeFlags == 0 &&
+                    glyphSlotEntry->TypeFlags == 1;
+                if (glyphEntry->TypeFlags != glyphSlotEntry->TypeFlags && !isMajorInMinorSlot)
                 {
                     SendCastResult(SPELL_FAILED_INVALID_GLYPH);
                     return;                                 // glyph slot mismatch

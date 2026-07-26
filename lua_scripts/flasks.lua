@@ -3,13 +3,24 @@
 -- ============================================================
 
 local POTION_DATA = {
+    [6372] = 7840,   -- Minor Healing Potion
+
     -- [Item ID] = Spell ID to Reset
-    [118] = 439,   -- Minor Healing Potion -> Healing
-    [2455] = 437,  -- Minor Mana Potion -> Restore Mana
+    
+    [118] = 439,   -- Minor Healing Potion
+    [2455] = 437,  -- Minor Mana Potion
+
     [858] = 440,   -- Lesser Healing Potion
-    [3385] = 438,  -- Lesser Mana Potion -> Restore Mana
+    [3385] = 438,  -- Lesser Mana Potion
+
     [929] = 441,   -- Healing Potion
-    [3827] = 2023,  -- Mana Potion -> Restore Mana
+    [3827] = 2023,  -- Mana Potion
+
+    [1710] = 2024,   -- Greater Healing Potion
+    [6149] = 11903,  -- Greater Mana Potion
+
+    [3928] = 4042,   -- Superior Healing Potion
+    [13443] = 17530,  -- Superior Mana Potion
 }
 
 -- Short delay to ensure we wipe the CD *after* the server applies it.

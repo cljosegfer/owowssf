@@ -6,6 +6,11 @@
 -- HERBALISM
 -- ============================================================
 
+-- fishing
+INSERT IGNORE INTO npc_vendor (entry, slot, item, maxcount, incrtime, ExtendedCost)
+SELECT 5503, 0, entry, 0, 0, 0 FROM item_template
+WHERE name IN ('Oily Blackmouth', 'Firefin Snapper');
+
 -- Apprentice (1–75)
 INSERT IGNORE INTO npc_vendor (entry, slot, item, maxcount, incrtime, ExtendedCost)
 SELECT 5503, 0, entry, 0, 0, 0 FROM item_template
