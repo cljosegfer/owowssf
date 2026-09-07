@@ -3,7 +3,8 @@
 -- ============================================================
 
 local POTION_DATA = {
-    [6372] = 7840,   -- Minor Healing Potion
+    [6372] = 7840,   -- swim speed potion
+    [3823] = 3680,   -- lesser invisibility poison
 
     -- [Item ID] = Spell ID to Reset
     

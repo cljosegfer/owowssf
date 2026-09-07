@@ -16,6 +16,7 @@
  */
 
 #include "SpellInfo.h"
+#include "AreaDefines.h"
 #include "Chat.h"
 #include "ConditionMgr.h"
 #include "Corpse.h"
@@ -1516,7 +1517,19 @@ SpellCastResult SpellInfo::CheckLocation(uint32 map_id, uint32 zone_id, uint32 a
             areaEntry = sAreaTableStore.LookupEntry(zone_id);
         }
 
-        if (!areaEntry || !areaEntry->IsFlyable() || (strict && (areaEntry->flags & AREA_FLAG_NO_FLY_ZONE) != 0) || !player->canFlyInZone(map_id, zone_id, this))
+        // Old-world continents don't carry AREA_FLAG_OUTLAND in the DBC, so
+        // IsFlyable() is false there by default; treat them as flyable too.
+        bool isFlyableContinent = map_id == MAP_EASTERN_KINGDOMS || map_id == MAP_KALIMDOR;
+        bool flyable = areaEntry && (areaEntry->IsFlyable() || isFlyableContinent);
+        bool noFlyZone = areaEntry && strict && (areaEntry->flags & AREA_FLAG_NO_FLY_ZONE) != 0;
+        bool canFlyZone = flyable && !noFlyZone && player && player->canFlyInZone(map_id, zone_id, this);
+
+        // TEMP DEBUG - remove once flying-in-Azeroth issue is diagnosed
+        LOG_INFO("spells", "[FlyDebug] spell={} map={} zone={} area={} areaFound={} areaFlags={:#x} isFlyableContinent={} flyable={} noFlyZone={} canFlyZone={} hasPlayer={}",
+            Id, map_id, zone_id, area_id, areaEntry != nullptr, areaEntry ? areaEntry->flags : 0,
+            isFlyableContinent, flyable, noFlyZone, canFlyZone, player != nullptr);
+
+        if (!flyable || noFlyZone || !canFlyZone)
         {
             return SPELL_FAILED_INCORRECT_AREA;
         }
