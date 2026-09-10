@@ -1531,7 +1531,10 @@ SpellCastResult SpellInfo::CheckLocation(uint32 map_id, uint32 zone_id, uint32 a
 
         if (!flyable || noFlyZone || !canFlyZone)
         {
-            return SPELL_FAILED_INCORRECT_AREA;
+            // return SPELL_FAILED_INCORRECT_AREA;
+            LOG_INFO("spells", "[fly forbidden] spell={} map={} zone={} area={} areaFound={} areaFlags={:#x} isFlyableContinent={} flyable={} noFlyZone={} canFlyZone={} hasPlayer={}",
+            Id, map_id, zone_id, area_id, areaEntry != nullptr, areaEntry ? areaEntry->flags : 0,
+            isFlyableContinent, flyable, noFlyZone, canFlyZone, player != nullptr);
         }
     }
 
