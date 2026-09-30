@@ -24,17 +24,17 @@ WHERE name IN ('Mageroyal', 'Briarthorn', 'Swiftthistle', 'Stranglekelp', 'Bruis
 -- Artisan (150–225)
 INSERT IGNORE INTO npc_vendor (entry, slot, item, maxcount, incrtime, ExtendedCost)
 SELECT 5503, 0, entry, 0, 0, 0 FROM item_template
-WHERE name IN ('Wild Steelbloom', 'Grave Moss', 'Kingsblood', 'Liferoot', 'Fadeleaf', 'Goldthorn');
+WHERE name IN ('Wild Steelbloom', 'Grave Moss', 'Kingsblood', 'Liferoot', 'Fadeleaf', 'Goldthorn', 'Khadgar''s Whisker', 'Wintersbite');
 
 -- Master (225–300)
 INSERT IGNORE INTO npc_vendor (entry, slot, item, maxcount, incrtime, ExtendedCost)
 SELECT 5503, 0, entry, 0, 0, 0 FROM item_template
-WHERE name IN ('Firebloom', 'Purple Lotus', 'Arthas'' Tears', 'Sungrass', 'Blindweed', 'Ghost Mushroom', 'Gromsblood');
+WHERE name IN ('Firebloom', 'Purple Lotus', 'Arthas'' Tears', 'Sungrass', 'Blindweed', 'Ghost Mushroom', 'Gromsblood', 'Wildvine');
 
 -- Grand Master (300–375)
 INSERT IGNORE INTO npc_vendor (entry, slot, item, maxcount, incrtime, ExtendedCost)
 SELECT 5503, 0, entry, 0, 0, 0 FROM item_template
-WHERE name IN ('Golden Sansam', 'Dreamfoil', 'Mountain Silversage', 'Plaguebloom', 'Icecap', 'Black Lotus');
+WHERE name IN ('Golden Sansam', 'Dreamfoil', 'Mountain Silversage', 'Plaguebloom', 'Icecap', 'Black Lotus', 'Bloodvine');
 
 -- WotLK (350–450)
 INSERT IGNORE INTO npc_vendor (entry, slot, item, maxcount, incrtime, ExtendedCost)
